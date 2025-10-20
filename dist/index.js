@@ -8,9 +8,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
+const express_1 = __importDefault(require("express"));
 const client = new client_1.PrismaClient();
+const app = (0, express_1.default)();
+app.get("/users", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const userData = yield client.user.findMany();
+        res.json({
+            userData
+        });
+    });
+});
+app.get("/todos/:id", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const id = req.params.id;
+        const userData = yield client.user.findFirst({
+            where: {
+                id: parseInt(id)
+            },
+            select: {
+                todos: true
+            }
+        });
+        res.json({
+            userData
+        });
+    });
+});
+app.listen(3000);
 function createUser() {
     return __awaiter(this, void 0, void 0, function* () {
         yield client.user.create({
@@ -52,9 +82,12 @@ function getUser() {
             },
             // select:{
             //     username : true
-            // }
+            // },
+            include: {
+                todos: true
+            }
         });
         console.log(userData);
     });
 }
-getUser();
+// getUser();
